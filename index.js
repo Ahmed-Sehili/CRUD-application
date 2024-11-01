@@ -57,7 +57,7 @@ app.put('/data/:id', (req, res) => {
         res.status(200).json(data);
 
     } else {
-        const newStudent = { id: Date.now(), ...req.body };
+        const newStudent = { id: parseInt(req.params.id), ...req.body };
         data.push(newStudent);
 
         fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
