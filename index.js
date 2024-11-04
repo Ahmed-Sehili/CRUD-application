@@ -1,6 +1,7 @@
 // Importing tools
 
 const express = require('express');
+const { Sequelize, DataTypes } = require('sequelize');
 const fs = require('fs');
 
 // Creating the application
@@ -12,86 +13,92 @@ const port = 3000;
 
 app.use(express.json());
 
-// Reading from the 'database'
+// Creating the database
 
-const readData = () => {
+const sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: './database.db',
+});
+
+const User = sequelize.define('User', {
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    country: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+});
+
+sequelize.sync().then(() => {
+    console.log('Database synced');
+});
+
+// API endpoints
+
+app.post('/users', async (req, res) => {
     try {
-        const data = fs.readFileSync('data.json');
-        return JSON.parse(data);
+        const { name, country } = req.body;
+        const newUser = await User.create({ name, country });
+        res.json(newUser);
     } catch (error) {
-        console.error('Error getting data:', error);
-        return []
-    }
-};
-
-// API endpoint for getting all data
-
-app.get('/data', (_, res) => {
-    const data = readData();
-    res.status(200).json(data);
-});
-
-// API endpoint for getting data by id
-
-app.get('/data/:id', (req, res) => {
-    const data = readData();
-    const student = data.find(i => i.id === parseInt(req.params.id));
-
-    if (student) {
-        res.status(200).json(student);
-    } else {
-        res.status(404).send('Student not found');
+        res.status(400).json({ error: error.message });
     }
 });
 
-// API endpoint for updating data by id
-
-app.put('/data/:id', (req, res) => {
-    let data = readData();
-    let student = data.find(i => i.id === parseInt(req.params.id));
-    
-    if (student) {
-        Object.assign(student, req.body);
-
-        fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
-        res.status(200).json(data);
-
-    } else {
-        const newStudent = { id: parseInt(req.params.id), ...req.body };
-        data.push(newStudent);
-
-        fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
-        res.status(201).json(newStudent);
+app.get('/users', async (req, res) => {
+    try {
+        const users = await User.findAll();
+        res.json(users);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
 });
 
-// API endpoint for adding new data
-
-app.post('/data', (req, res) => {
-    const data = readData();
-
-    const newStudent = { id: Date.now(), ...req.body };
-    data.push(newStudent);
-
-    fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
-    res.status(201).json(newStudent);
-});
-
-// API endpoint for deleting data by id
-
-app.delete('/data/:id', (req, res) => {
-    let data = readData();
-
-    const studentExists = data.some(i => i.id === parseInt(req.params.id));
-
-    if (!studentExists) {
-        return res.status(404).send('Student not found');
+app.get('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
-    
-    data = data.filter(i => i.id !== parseInt(req.params.id));
-    fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
-    
-    res.status(204).send();
+})
+
+app.put('/users/:id', async (req, res) => {
+    try {
+        const { name, country } = req.body;
+        const user = await User.findByPk(req.params.id);
+
+        if (user) {
+            user.name = name;
+            user.country = country;
+            await user.save();
+            res.json(user);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+})
+
+app.delete('/users/:id', async (req, res) => {
+    try {
+        const user = await User.findByPk(req.params.id);
+        if (user) {
+            await user.destroy();
+            res.json({ message: 'User deleted' });
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 });
 
 // Starting the server
