@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const fetchUsers = async () => {
+            try {
+                const res = await fetch('http://localhost:3000/users');
+                const users = await res.json();
+                return users;
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        const users = fetchUsers();
+        console.log(JSON.stringify(users));
+    </script>
+</body>
+</html>

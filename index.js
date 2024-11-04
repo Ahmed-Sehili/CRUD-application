@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
-const fs = require('fs');
+const cors = require('cors');
 
 // Creating the application
 
@@ -12,6 +12,7 @@ const port = 3000;
 // Middleware
 
 app.use(express.json());
+app.use(cors());
 
 // Creating the database
 
