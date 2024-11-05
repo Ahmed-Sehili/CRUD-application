@@ -11,14 +11,14 @@
             try {
                 const res = await fetch('http://localhost:3000/users');
                 const users = await res.json();
-                return users;
+                return JSON.stringify(users);
             } catch (error) {
                 console.log(error);
             }
         }
 
         const users = fetchUsers();
-        console.log(JSON.stringify(users));
+        console.log(users);
     </script>
 </body>
 </html>
