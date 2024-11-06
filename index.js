@@ -4,6 +4,11 @@ const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
 const cors = require('cors');
 
+// Logger
+
+const morgan = require('morgan');
+app.use(morgan);
+
 // Creating the application
 
 const app = express();
