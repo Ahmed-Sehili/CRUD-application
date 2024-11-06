@@ -12,7 +12,7 @@ const port = 3000;
 
 // Middleware
 
-app.use(morgan);
+app.use(morgan('default'));
 app.use(express.json());
 app.use(cors());
 
