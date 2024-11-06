@@ -10,15 +10,20 @@
         const fetchUsers = async () => {
             try {
                 const res = await fetch('http://localhost:3000/users');
-                const users = await res.json();
-                return JSON.stringify(users);
+                const data = await res.json();
+                return data;
             } catch (error) {
                 console.log(error);
             }
         }
 
-        const users = fetchUsers();
-        console.log(users);
+        const logUsers = async () => {
+            const data = await fetchUsers();
+            console.log(data);
+        };
+
+        logUsers();
+
     </script>
 </body>
 </html>
