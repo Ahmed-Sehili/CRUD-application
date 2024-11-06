@@ -3,11 +3,7 @@
 const express = require('express');
 const { Sequelize, DataTypes } = require('sequelize');
 const cors = require('cors');
-
-// Logger
-
 const morgan = require('morgan');
-app.use(morgan);
 
 // Creating the application
 
@@ -16,6 +12,7 @@ const port = 3000;
 
 // Middleware
 
+app.use(morgan);
 app.use(express.json());
 app.use(cors());
 
